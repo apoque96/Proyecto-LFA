@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35219.272
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Proyecto LFA", "Proyecto LFA\Proyecto LFA.csproj", "{FA3A1886-8F24-4285-973B-EFB91B6686E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Proyecto LFATests", "Proyecto LFATests\Proyecto LFATests.csproj", "{07AA5018-5186-439E-840B-CB20D32132DA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FA3A1886-8F24-4285-973B-EFB91B6686E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA3A1886-8F24-4285-973B-EFB91B6686E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA3A1886-8F24-4285-973B-EFB91B6686E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA3A1886-8F24-4285-973B-EFB91B6686E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07AA5018-5186-439E-840B-CB20D32132DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07AA5018-5186-439E-840B-CB20D32132DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07AA5018-5186-439E-840B-CB20D32132DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07AA5018-5186-439E-840B-CB20D32132DA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F4DE9727-D93B-4A53-81E2-76E458D28D63}
+	EndGlobalSection
+EndGlobal
