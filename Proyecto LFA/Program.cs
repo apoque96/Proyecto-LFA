@@ -3,7 +3,7 @@ using Action = Proyecto_LFA.Action;
 
 try
 {
-    (List<Set> sets, List<Token> tokens, List<Action> actions)
+    (List<Set> sets, List<Token> tokens, List<Action> actions, List<Error> errors)
         = FileManager.ReadFile("../../../../Testing/GRAMATICA.txt");
 
     Console.WriteLine("Sets:");
@@ -17,6 +17,10 @@ try
     Console.WriteLine("Actions:");
     foreach (Action action in actions)
         Console.WriteLine(action.ToString());
+
+    Console.WriteLine("Errors:");
+    foreach (Error err in errors)
+        Console.WriteLine(err.ToString());
 }
 catch (Exception err)
 {

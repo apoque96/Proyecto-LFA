@@ -12,11 +12,12 @@
             none
         }
 
-        public static (List<Set>, List<Token>, List<Action>) ReadFile(string path)
+        public static (List<Set>, List<Token>, List<Action>, List<Error>) ReadFile(string path)
         {
             List<Set> sets = [];
             List<Token> tokens = [];
             List<Action> actions = [];
+            List<Error> errors = [];
 
             string line;
 
@@ -36,6 +37,16 @@
 
                 line = line.Trim();
                 line = line.ReplaceLineEndings();
+
+                //Used for finding ERROR
+                string[] separateEqualSign = line.Split('=', 2, StringSplitOptions.TrimEntries);
+                if (separateEqualSign[0] == "ERROR")
+                {
+                    Error err = new(line);
+                    errors.Add(err);
+                    line = sr.ReadLine()!;
+                    continue;
+                }
 
                 switch (line)
                 {
@@ -78,8 +89,10 @@
                 throw new ArgumentException("Didn't find TOKENS");
             if(actions.Count < 1)
                 throw new ArgumentException("Didn't find ACTIONS");
+            if (errors.Count < 1)
+                throw new ArgumentException("Didn't find ERROR");
 
-            return (sets, tokens, actions);
+            return (sets, tokens, actions, errors);
         }
     }
 }
