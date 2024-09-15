@@ -14,9 +14,9 @@ namespace Proyecto_LFA.Tests
         [TestMethod()]
         public void ValidGrammar()
         {
-            Assert.IsInstanceOfType<(List<Set>, List<Token>, List<Action>)>
+            Assert.IsInstanceOfType<(List<Set>, List<Token>, List<Action>, List<Error>)>
                 (FileManager.ReadFile("../../../../Testing/GRAMATICA.txt"));
-            Assert.IsInstanceOfType<(List<Set>, List<Token>, List<Action>)>
+            Assert.IsInstanceOfType<(List<Set>, List<Token>, List<Action>, List<Error>)>
                 (FileManager.ReadFile("../../../../Testing/prueba_2-1.txt"));
         }
 
