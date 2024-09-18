@@ -69,16 +69,6 @@
                     tokens.Push("'" + c.ToString() + "'");
                     foundInsideApostrophe = true;
                     tokens.Push(".");
-
-                    //if (!IsOperator(c) && c != ')')
-                    //{
-                    //    tokens.Push(".");
-                    //}
-                    //else
-                    //{
-                    //    tokens.Pop();
-                    //    tokens.Push(c.ToString());
-                    //}
                 }
                 else if (IsOperator(c) && string.IsNullOrWhiteSpace(set))
                 {
