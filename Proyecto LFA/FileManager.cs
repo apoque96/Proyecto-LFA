@@ -28,7 +28,7 @@
 
             while (line != null)
             {
-                if (line.Length == 0)
+                if (string.IsNullOrWhiteSpace(line))
                 {
                     line = sr.ReadLine();
                     continue;

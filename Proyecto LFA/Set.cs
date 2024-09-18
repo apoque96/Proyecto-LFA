@@ -61,8 +61,8 @@
                 {
                     //' in ascii is 39
                     if (modifiedElement[0] != 39 || modifiedElement[2] != 39)
-
-                    this.elements.Add(modifiedElement[2]);
+                        throw new ArgumentException("Expected \"'\"\n");
+                    this.elements.Add(modifiedElement[1]);
                 }
             }
             //throw new NotImplementedException();
