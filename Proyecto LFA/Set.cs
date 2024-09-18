@@ -37,14 +37,14 @@
                     char final;
 
                     //' in ascii is 39
-                    if (separation[0][0] != 39 && separation[0][2] != 39)
+                    if (separation[0][0] != 39 || separation[0][2] != 39)
                     {
                         throw new ArgumentException("Expected \"'\"\n");
                     }
 
                     starting = separation[0][1];
 
-                    if (separation[1][0] != 39 && separation[1][2] != 39)
+                    if (separation[1][0] != 39 || separation[1][2] != 39)
                     {
                         throw new ArgumentException("Expected \"'\"\n");
                     }
@@ -60,9 +60,9 @@
                 else
                 {
                     //' in ascii is 39
-                    if (modifiedElement[0] != 39 && modifiedElement[2] != 39)
-
-                    this.elements.Add(modifiedElement[2]);
+                    if (modifiedElement[0] != 39 || modifiedElement[2] != 39)
+                        throw new ArgumentException("Expected \"'\"\n");
+                    this.elements.Add(modifiedElement[1]);
                 }
             }
             //throw new NotImplementedException();
