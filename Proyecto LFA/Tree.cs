@@ -25,6 +25,7 @@ namespace Proyecto_LFA
 
         public Node BuildTree(Stack<string> tokens)
         {
+            // Procesamiento de tokens (ya lo tienes)
             while (tokens.Count > 0)
             {
                 var token = tokens.Pop();
@@ -44,8 +45,16 @@ namespace Proyecto_LFA
                     // Paso 5: Procesar el cierre de paréntesis
                     while (T.Count > 0 && T.Peek() != "(")
                     {
-                        if (S.Count < 2)
+                        if (T.Count == 0)
+                        {
                             throw new ArgumentException("Faltan operandos.");
+                        }
+
+                        if (S.Count < 2)
+                        {
+                            throw new ArgumentException("Faltan operandos.");
+                        }
+                            
 
                         string op = T.Pop();
                         Node right = S.Pop();
@@ -58,21 +67,38 @@ namespace Proyecto_LFA
                         S.Push(newNode);
                     }
 
-                    if (T.Count == 0 || T.Pop() != "(")
-                        throw new ArgumentException("Error de sintaxis: falta '('");
+                    T.Pop();
                 }
                 else if (IsOperator(token))
                 {
                     // Paso 6: Procesar los operadores
-                    while (T.Count > 0 && T.Peek() != "(" && Precedence(token) <= Precedence(T.Peek()))
+                    if (IsUnaryOperator(token)) // Si es un operador unario
                     {
-                        string op = T.Pop();
-                        if (S.Count < 2)
-                            throw new ArgumentException("Faltan operandos.");
+                        if (S.Count <= 0)
+                        {
+                            throw new ArgumentException("Faltan operandos 6_ii.");
+                        }
+                        Node operand = S.Pop(); // Extraemos el único operando
+                        Node newNode = new Node(token)
+                        {
+                            Left = operand,  // El operando unario tiene solo un hijo
+                            Right = null     // No hay hijo derecho para operadores unarios
+                        };
+                        S.Push(newNode);  // Empujamos el nuevo árbol
+                    }
+                    
+                   /*b, paso 6*/ else if(T.Count != 0 && T.Peek() != "(" && Precedence(Convert.ToString(token)) <= Precedence(Convert.ToString(T.Peek())))
+                    {
 
+                        string temp = T.Pop();
+                        if (S.Count < 2)
+                        {
+                            throw new ArgumentException("Faltan operandos.");
+                        }
+                            
                         Node right = S.Pop();
                         Node left = S.Pop();
-                        Node newNode = new Node(op)
+                        Node newNode = new Node(temp)
                         {
                             Left = left,
                             Right = right
@@ -88,6 +114,7 @@ namespace Proyecto_LFA
                 }
             }
 
+            // Aquí es donde va el bloque de código que mencionaste
             // Paso 9: Procesar los tokens restantes en T
             while (T.Count > 0)
             {
@@ -96,7 +123,7 @@ namespace Proyecto_LFA
                     throw new ArgumentException("Falta un operador.");
 
                 if (S.Count < 2)
-                    throw new ArgumentException("Faltan operandos.");
+                    throw new ArgumentException($"Faltan operandos al aplicar el operador '{op}'.");
 
                 Node right = S.Pop();
                 Node left = S.Pop();
@@ -115,6 +142,7 @@ namespace Proyecto_LFA
             return S.Pop();
         }
 
+
         private bool IsTerminal(string token)
         {
             // Verifica si el token es un símbolo terminal
@@ -124,7 +152,13 @@ namespace Proyecto_LFA
         private bool IsOperator(string token)
         {
             // Verifica si el token es un operador
-            return new HashSet<string> { "+", "*", "?", "|" }.Contains(token);
+            return new HashSet<string> {".", "+", "*", "?", "|" }.Contains(token);
+        }
+
+        private bool IsUnaryOperator(string token)
+        {
+            // Verifica si el token es un operador unario
+            return new HashSet<string> { "*", "?", "+"}.Contains(token);
         }
 
         private int Precedence(string token)
@@ -132,11 +166,12 @@ namespace Proyecto_LFA
             // Define la precedencia de operadores
             switch (token)
             {
-                case "*": case "?": return 3;
-                case "+": return 2;
-                case "|": return 1;
+                case "*": case "?": return 3;  // Precedencia alta para operadores unarios
+                case "+": return 2;            // Precedencia media para concatenación
+                case "|": return 1;            // Precedencia baja para OR
                 default: return 0;
             }
         }
     }
 }
+
