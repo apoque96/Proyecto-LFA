@@ -25,6 +25,7 @@ namespace Proyecto_LFA
 
         public Node BuildTree(Stack<string> tokens)
         {
+            // Procesamiento de tokens (ya lo tienes)
             while (tokens.Count > 0)
             {
                 var token = tokens.Pop();
@@ -44,8 +45,16 @@ namespace Proyecto_LFA
                     // Paso 5: Procesar el cierre de paréntesis
                     while (T.Count > 0 && T.Peek() != "(")
                     {
-                        if (S.Count < 2)
+                        if (T.Count == 0)
+                        {
                             throw new ArgumentException("Faltan operandos.");
+                        }
+
+                        if (S.Count < 2)
+                        {
+                            throw new ArgumentException("Faltan operandos.");
+                        }
+                            
 
                         string op = T.Pop();
                         Node right = S.Pop();
@@ -58,8 +67,7 @@ namespace Proyecto_LFA
                         S.Push(newNode);
                     }
 
-                    if (T.Count == 0 || T.Pop() != "(")
-                        throw new ArgumentException("Error de sintaxis: falta '('");
+                    T.Pop();
                 }
                 else if (IsOperator(token))
                 {
@@ -107,6 +115,7 @@ namespace Proyecto_LFA
                 }
             }
 
+            // Aquí es donde va el bloque de código que mencionaste
             // Paso 9: Procesar los tokens restantes en T
             while (T.Count > 0)
             {
@@ -115,7 +124,7 @@ namespace Proyecto_LFA
                     throw new ArgumentException("Falta un operador.");
 
                 if (S.Count < 2)
-                    throw new ArgumentException("Faltan operandos.");
+                    throw new ArgumentException($"Faltan operandos al aplicar el operador '{op}'.");
 
                 Node right = S.Pop();
                 Node left = S.Pop();
@@ -165,3 +174,4 @@ namespace Proyecto_LFA
         }
     }
 }
+
