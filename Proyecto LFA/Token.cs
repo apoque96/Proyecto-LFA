@@ -39,7 +39,7 @@
 
             foreach (char c in expression)
             {
-                if(c == ' ')
+                if (c == ' ')
                 {
                     if (!string.IsNullOrWhiteSpace(set))
                     {
@@ -66,23 +66,17 @@
 
                 if (foundApostrophe)
                 {
-                    tokens.Push(c.ToString());
+                    tokens.Push("'" + c.ToString() + "'");
                     foundInsideApostrophe = true;
-
-                    if (!IsOperator(c) && c != ')')
-                    {
-                        tokens.Push(".");
-                    }
-                    else
-                    {
-                        tokens.Pop();
-                        tokens.Push(c.ToString());
-                    }
+                    tokens.Push(".");
                 }
-                else if (IsOperator(c))
+                else if (IsOperator(c) && string.IsNullOrWhiteSpace(set))
                 {
-                    tokens.Pop();
+                    if (c != '(' && tokens.Peek() != ")")
+                        tokens.Pop();
                     tokens.Push(c.ToString());
+                    if (c != '|' && c != '(' && tokens.Peek() != ")")
+                        tokens.Push(".");
                 }
                 else
                 {
@@ -90,7 +84,14 @@
                 }
             }
 
-            if(tokens.Peek() == ".")
+            if (!string.IsNullOrWhiteSpace(set))
+            {
+                tokens.Push(set);
+                set = "";
+                tokens.Push(".");
+            }
+
+            if (tokens.Peek() == ".")
             {
                 tokens.Pop();
             }
@@ -104,53 +105,20 @@
                 throw new ArgumentException("Expected ' on " + expression);
             }
 
-            if (!ValidParenthesis(expression))
-                throw new ArgumentException("Expected ) on " + expression);
+            _ = new Tree(tokens);
         }
 
-        public bool ValidParenthesis(string s)
-        {
-
-            Stack<char> st = new Stack<char>();
-            char[] open = { '(', '[', '{' };
-            char[] end = { ')', ']', '}' };
-
-            for (int i = 0; i < s.Length; i++)
-            {
-                if (Array.IndexOf(open, s[i]) >= 0)
-                    st.Push(s[i]);
-
-                if (Array.IndexOf(end, s[i]) >= 0)
-                {
-                    if (st.Count == 0) return false;
-
-                    int pos = Array.IndexOf(open, st.Peek());
-                    if (pos >= 0 && pos == Array.IndexOf(end, s[i]))
-                    {
-                        st.Pop();
-                    }
-                    else
-                    {
-                        return false;
-                    }
-
-                }
-
-            }
-            return st.Count == 0;
-        }
-
+        // Método que verifica si un carácter es un operador
         private bool IsOperator(char element)
         {
-            // Check if the element is an operator (+, *, ?, |, (, ))
             return new HashSet<char> { '+', '*', '?', '|', '(', ')' }.Contains(element);
         }
 
-        private void ValidateReference(string element)
+        // Método que verifica si un carácter es un símbolo terminal
+        private bool IsTerminal(char element)
         {
-            // Placeholder for validating character sets, tokens, or other references (LETRA, DIGITO, etc.)
-            if (element.Length == 0)
-                throw new ArgumentException("Invalid reference in token expression.");
+            // Se consideran terminales aquellos caracteres que no son operadores ni paréntesis
+            return !IsOperator(element);
         }
 
         public override string ToString()
