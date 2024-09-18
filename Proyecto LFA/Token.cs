@@ -121,43 +121,6 @@
             return !IsOperator(element);
         }
 
-        public bool ValidParenthesis(string s)
-        {
-            Stack<char> st = new Stack<char>();
-            char[] open = { '(', '[', '{' };
-            char[] end = { ')', ']', '}' };
-
-            for (int i = 0; i < s.Length; i++)
-            {
-                if (Array.IndexOf(open, s[i]) >= 0)
-                    st.Push(s[i]);
-
-                if (Array.IndexOf(end, s[i]) >= 0)
-                {
-                    if (st.Count == 0) return false;
-
-                    int pos = Array.IndexOf(open, st.Peek());
-                    if (pos >= 0 && pos == Array.IndexOf(end, s[i]))
-                    {
-                        st.Pop();
-                    }
-                    else
-                    {
-                        return false;
-                    }
-
-                }
-
-            }
-            return st.Count == 0;
-        }
-
-        private void ValidateReference(string element)
-        {
-            if (element.Length == 0)
-                throw new ArgumentException("Invalid reference in token expression.");
-        }
-
         public override string ToString()
         {
             return $"TOKEN {number} = {expression}";
