@@ -104,8 +104,7 @@
                 throw new ArgumentException("Expected ' on " + expression);
             }
 
-            if (!ValidParenthesis(expression))
-                throw new ArgumentException("Expected ) on " + expression);
+            _ = new Tree(tokens);
         }
 
         public bool ValidParenthesis(string s)

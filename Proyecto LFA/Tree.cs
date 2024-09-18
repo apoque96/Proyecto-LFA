@@ -11,10 +11,24 @@ namespace Proyecto_LFA
         private Stack<Node> S = new Stack<Node>();  // Pila de árboles
         private Stack<string> T = new Stack<string>();  // Pila de tokens
 
-        public Node BuildTree(List<string> tokens)
+        public Tree(Stack<string> s)
         {
-            foreach (var token in tokens)
+            Stack<string> tokens = new Stack<string>();
+
+            while (s.Count > 0)
             {
+                tokens.Push(s.Pop());
+            }
+
+            _ = this.BuildTree(tokens);
+        }
+
+        public Node BuildTree(Stack<string> tokens)
+        {
+            while (tokens.Count > 0)
+            {
+                var token = tokens.Pop();
+
                 if (IsTerminal(token))
                 {
                     // Paso 3: Convertir st en árbol y hacer push a S
