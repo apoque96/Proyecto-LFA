@@ -66,32 +66,39 @@
 
                 if (foundApostrophe)
                 {
-                    tokens.Push(c.ToString());
+                    tokens.Push("'" + c.ToString() + "'");
                     foundInsideApostrophe = true;
+                    tokens.Push(".");
 
-                    if (!IsOperator(c) && c != ')')
-                    {
-                        tokens.Push(".");
-                    }
-                    else
-                    {
+                    //if (!IsOperator(c) && c != ')')
+                    //{
+                    //    tokens.Push(".");
+                    //}
+                    //else
+                    //{
+                    //    tokens.Pop();
+                    //    tokens.Push(c.ToString());
+                    //}
+                }
+                else if (IsOperator(c) && string.IsNullOrWhiteSpace(set))
+                {
+                    if (c != '(' && tokens.Peek() != ")")
                         tokens.Pop();
-                        tokens.Push(c.ToString());
-                    }
-                }
-                else if (IsOperator(c))
-                {
-                    tokens.Pop();
                     tokens.Push(c.ToString());
-                }
-                else if (IsTerminal(c))
-                {
-                    set += c;
+                    if (c != '|' && c != '(' && tokens.Peek() != ")")
+                        tokens.Push(".");
                 }
                 else
                 {
-                    throw new ArgumentException($"Token no reconocido: {c}");
+                    set += c;
                 }
+            }
+
+            if (!string.IsNullOrWhiteSpace(set))
+            {
+                tokens.Push(set);
+                set = "";
+                tokens.Push(".");
             }
 
             if (tokens.Peek() == ".")
@@ -121,7 +128,7 @@
         private bool IsTerminal(char element)
         {
             // Se consideran terminales aquellos caracteres que no son operadores ni paréntesis
-            return !IsOperator(element) && element != '(' && element != ')';
+            return !IsOperator(element);
         }
 
         public bool ValidParenthesis(string s)

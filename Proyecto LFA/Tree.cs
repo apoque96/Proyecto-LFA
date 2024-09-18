@@ -63,23 +63,42 @@ namespace Proyecto_LFA
                 }
                 else if (IsOperator(token))
                 {
-                    // Paso 6: Procesar los operadores
-                    while (T.Count > 0 && T.Peek() != "(" && Precedence(token) <= Precedence(T.Peek()))
+                    if (IsUnary(token))
                     {
-                        string op = T.Pop();
-                        if (S.Count < 2)
+                        if (S.Count < 1)
+                        {
                             throw new ArgumentException("Faltan operandos.");
+                        }
 
-                        Node right = S.Pop();
                         Node left = S.Pop();
-                        Node newNode = new Node(op)
+                        Node newNode = new Node(token)
                         {
                             Left = left,
-                            Right = right
+                            Right = null!,
                         };
+
                         S.Push(newNode);
                     }
-                    T.Push(token);
+                    else {
+                        // Paso 6: Procesar los operadores
+                        while (T.Count > 0 && T.Peek() != "(" && Precedence(token) <= Precedence(T.Peek()))
+                        {
+                            string op = T.Pop();
+                            if (S.Count < 2)
+                                throw new ArgumentException("Faltan operandos.");
+
+                            Node right = S.Pop();
+                            Node left = S.Pop();
+                            Node newNode = new Node(op)
+                            {
+                                Left = left,
+                                Right = right
+                            };
+                            S.Push(newNode);
+                        }
+                    }
+                    if (!IsUnary(token))
+                        T.Push(token);
                 }
                 else
                 {
@@ -115,6 +134,11 @@ namespace Proyecto_LFA
             return S.Pop();
         }
 
+        private bool IsUnary(string token)
+        {
+            return new HashSet<string> { "+", "*", "?"}.Contains(token);
+        }
+
         private bool IsTerminal(string token)
         {
             // Verifica si el token es un símbolo terminal
@@ -124,7 +148,7 @@ namespace Proyecto_LFA
         private bool IsOperator(string token)
         {
             // Verifica si el token es un operador
-            return new HashSet<string> { "+", "*", "?", "|" }.Contains(token);
+            return new HashSet<string> { "+", "*", "?", "|", "." }.Contains(token);
         }
 
         private int Precedence(string token)
@@ -132,8 +156,9 @@ namespace Proyecto_LFA
             // Define la precedencia de operadores
             switch (token)
             {
-                case "*": case "?": return 3;
-                case "+": return 2;
+                case "*": case "?": return 4;
+                case "+": return 3;
+                case ".": return 2;
                 case "|": return 1;
                 default: return 0;
             }
