@@ -39,7 +39,7 @@
 
             foreach (char c in expression)
             {
-                if(c == ' ')
+                if (c == ' ')
                 {
                     if (!string.IsNullOrWhiteSpace(set))
                     {
@@ -84,13 +84,17 @@
                     tokens.Pop();
                     tokens.Push(c.ToString());
                 }
-                else
+                else if (IsTerminal(c))
                 {
                     set += c;
                 }
+                else
+                {
+                    throw new ArgumentException($"Token no reconocido: {c}");
+                }
             }
 
-            if(tokens.Peek() == ".")
+            if (tokens.Peek() == ".")
             {
                 tokens.Pop();
             }
@@ -107,9 +111,21 @@
             _ = new Tree(tokens);
         }
 
+        // Método que verifica si un carácter es un operador
+        private bool IsOperator(char element)
+        {
+            return new HashSet<char> { '+', '*', '?', '|', '(', ')' }.Contains(element);
+        }
+
+        // Método que verifica si un carácter es un símbolo terminal
+        private bool IsTerminal(char element)
+        {
+            // Se consideran terminales aquellos caracteres que no son operadores ni paréntesis
+            return !IsOperator(element) && element != '(' && element != ')';
+        }
+
         public bool ValidParenthesis(string s)
         {
-
             Stack<char> st = new Stack<char>();
             char[] open = { '(', '[', '{' };
             char[] end = { ')', ']', '}' };
@@ -139,15 +155,8 @@
             return st.Count == 0;
         }
 
-        private bool IsOperator(char element)
-        {
-            // Check if the element is an operator (+, *, ?, |, (, ))
-            return new HashSet<char> { '+', '*', '?', '|', '(', ')' }.Contains(element);
-        }
-
         private void ValidateReference(string element)
         {
-            // Placeholder for validating character sets, tokens, or other references (LETRA, DIGITO, etc.)
             if (element.Length == 0)
                 throw new ArgumentException("Invalid reference in token expression.");
         }
