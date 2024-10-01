@@ -22,6 +22,8 @@ namespace Proyecto_LFA
             List<Error> errors = new();
 
             string line;
+            bool found_reserved = false;
+            bool found_set = false;
             PartType part = PartType.none;
 
             using StreamReader sr = new(path);
@@ -52,6 +54,7 @@ namespace Proyecto_LFA
                 {
                     case "SETS":
                         part = PartType.set;
+                        found_set = true;
                         break;
                     case "TOKENS":
                         part = PartType.token;
@@ -72,8 +75,10 @@ namespace Proyecto_LFA
                                 break;
                             case PartType.action:
                                 // Read the full block of ACTIONS
-                                if (line.StartsWith("RESERVADAS()"))
+                                while (line.EndsWith("()"))
                                 {
+                                    if (line.StartsWith("RESERVADAS()"))
+                                        found_reserved = true;
                                     // We need to read the entire block for RESERVADAS()
                                     StringBuilder actionContent = new();
                                     actionContent.AppendLine(line);
@@ -98,7 +103,7 @@ namespace Proyecto_LFA
                                     }
                                     catch (Exception ex)
                                     {
-                                        errors.Add(new Error($"Error processing ACTIONS section: {ex.Message}"));
+                                        throw new ArgumentException($"Error processing ACTIONS section: {ex.Message}");
                                     }
                                 }
                                 break;
@@ -117,6 +122,10 @@ namespace Proyecto_LFA
                 throw new ArgumentException("Didn't find ACTIONS");
             if (errors.Count < 1)
                 throw new ArgumentException("Didn't find ERROR");
+            if (found_set && sets.Count < 1)
+                throw new ArgumentException("Expected at least one SET");
+            if (!found_reserved)
+                throw new ArgumentException("Didn't find RESERVADAS in ACTIONS");
 
             return (sets, tokens, actions, errors);
         }
