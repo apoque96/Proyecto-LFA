@@ -23,6 +23,7 @@ namespace Proyecto_LFA
 
             string line;
             bool found_reserved = false;
+            bool found_set = false;
             PartType part = PartType.none;
 
             using StreamReader sr = new(path);
@@ -53,6 +54,7 @@ namespace Proyecto_LFA
                 {
                     case "SETS":
                         part = PartType.set;
+                        found_set = true;
                         break;
                     case "TOKENS":
                         part = PartType.token;
@@ -120,6 +122,8 @@ namespace Proyecto_LFA
                 throw new ArgumentException("Didn't find ACTIONS");
             if (errors.Count < 1)
                 throw new ArgumentException("Didn't find ERROR");
+            if (found_set && sets.Count < 1)
+                throw new ArgumentException("Expected at least one SET");
             if (!found_reserved)
                 throw new ArgumentException("Didn't find RESERVADAS in ACTIONS");
 
