@@ -9,8 +9,8 @@
         {
             //Separates the name of the set and the elements of the set
             string[] arr = line.Split('=', 2, StringSplitOptions.TrimEntries);
-            if (arr.Length == 0)
-                throw new ArgumentException("Expected '='\n");
+            if (arr.Length < 2)
+                throw new ArgumentException("Expected '='");
             
             this.name = arr[0];
 
@@ -22,31 +22,39 @@
 
             foreach (string element in elements)
             {
+                if (string.IsNullOrWhiteSpace(element))
+                    throw new ArgumentException("Expected a character");
+
                 string modifiedElement = ToChar(element);
 
                 //Separetes via ".."
                 string[] separation = modifiedElement.Split("..");
                 if(separation.Length > 2)
                 {
-                    throw new ArgumentException("Expected '+'\n");
+                    throw new ArgumentException("Expected '+'");
                 }
 
                 if (separation.Length == 2)
                 {
+                    if (string.IsNullOrWhiteSpace(separation[0]))
+                        throw new ArgumentException("Expected a character before '..'");
+                    else if (string.IsNullOrWhiteSpace(separation[1]))
+                        throw new ArgumentException("Expected a character after '..'");
+
                     char starting;
                     char final;
 
                     //' in ascii is 39
                     if (separation[0][0] != 39 || separation[0][2] != 39)
                     {
-                        throw new ArgumentException("Expected \"'\"\n");
+                        throw new ArgumentException("Expected \"'\"");
                     }
 
                     starting = separation[0][1];
 
                     if (separation[1][0] != 39 || separation[1][2] != 39)
                     {
-                        throw new ArgumentException("Expected \"'\"\n");
+                        throw new ArgumentException("Expected \"'\"");
                     }
 
                     final = separation[1][1];
@@ -61,7 +69,7 @@
                 {
                     //' in ascii is 39
                     if (modifiedElement[0] != 39 || modifiedElement[2] != 39)
-                        throw new ArgumentException("Expected \"'\"\n");
+                        throw new ArgumentException("Expected \"'\"");
                     this.elements.Add(modifiedElement[1]);
                 }
             }
@@ -95,12 +103,12 @@
                     }
                     catch (Exception)
                     {
-                        throw new ArgumentException("Expected a number in CHR\n");
+                        throw new ArgumentException("Expected a number in CHR");
                     }
                 }
 
                 if (!foundEndParenthesis)
-                    throw new ArgumentException("Expected ')' after CHR\n");
+                    throw new ArgumentException("Expected ')' after CHR");
 
                 //Copied it from ChatGpt Xd
                 int value = int.Parse(code);
