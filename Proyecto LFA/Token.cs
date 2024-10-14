@@ -1,14 +1,9 @@
 ﻿namespace Proyecto_LFA
 {
-    public class Token : Part
+    public class Token(string line) : Part(line)
     {
         private int number;
         private string expression = "";
-
-        public Token(string line) : base(line)
-        {
-            Validate(line);
-        }
 
         public override void Validate(string line)
         {

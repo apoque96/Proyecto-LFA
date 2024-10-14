@@ -24,5 +24,5 @@ try
 }
 catch (Exception err)
 {
-    Console.WriteLine("Error: " + err.ToString());
+    Console.WriteLine(err.Message);
 }

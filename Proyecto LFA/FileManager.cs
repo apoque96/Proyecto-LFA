@@ -22,6 +22,10 @@ namespace Proyecto_LFA
             List<Error> errors = new();
 
             string line;
+            string error_string;
+            int line_index = 0;
+            bool found_reserved = false;
+            bool found_set = false;
             PartType part = PartType.none;
 
             using StreamReader sr = new(path);
@@ -30,6 +34,9 @@ namespace Proyecto_LFA
 
             while (line != null)
             {
+                line_index++;
+                error_string = $"{{line {line_index}}}: ";
+
                 if (string.IsNullOrWhiteSpace(line))
                 {
                     line = sr.ReadLine();
@@ -42,9 +49,16 @@ namespace Proyecto_LFA
                 // Detecting ERROR lines
                 if (line.StartsWith("ERROR"))
                 {
-                    Error err = new(line);
-                    errors.Add(err);
-                    line = sr.ReadLine()!;
+                    try
+                    {
+                        Error err = new(line);
+                        errors.Add(err);
+                        line = sr.ReadLine()!;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ArgumentException($"{error_string} Error processing ERROR section: {ex.Message}");
+                    }
                     continue;
                 }
 
@@ -52,6 +66,7 @@ namespace Proyecto_LFA
                 {
                     case "SETS":
                         part = PartType.set;
+                        found_set = true;
                         break;
                     case "TOKENS":
                         part = PartType.token;
@@ -63,17 +78,33 @@ namespace Proyecto_LFA
                         switch (part)
                         {
                             case PartType.set:
-                                Set set = new(line);
-                                sets.Add(set);
+                                try
+                                {
+                                    Set set = new(line);
+                                    sets.Add(set);
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw new ArgumentException($"{error_string} Error processing SETS section: {ex.Message}");
+                                }
                                 break;
                             case PartType.token:
-                                Token token = new(line);
-                                tokens.Add(token);
+                                try
+                                {
+                                    Token token = new(line);
+                                    tokens.Add(token);
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw new ArgumentException($"{error_string} Error processing TOKENS section: {ex.Message}");
+                                }
                                 break;
                             case PartType.action:
                                 // Read the full block of ACTIONS
-                                if (line.StartsWith("RESERVADAS()"))
+                                while (line.EndsWith("()"))
                                 {
+                                    if (line.StartsWith("RESERVADAS()"))
+                                        found_reserved = true;
                                     // We need to read the entire block for RESERVADAS()
                                     StringBuilder actionContent = new();
                                     actionContent.AppendLine(line);
@@ -98,12 +129,12 @@ namespace Proyecto_LFA
                                     }
                                     catch (Exception ex)
                                     {
-                                        errors.Add(new Error($"Error processing ACTIONS section: {ex.Message}"));
+                                        throw new ArgumentException($"{error_string} Error processing ACTIONS section: {ex.Message}");
                                     }
                                 }
                                 break;
                             default:
-                                throw new ArgumentException("Expected 'SETS', 'TOKENS', 'ACTIONS' or 'ERROR'");
+                                throw new ArgumentException($"{error_string} Expected 'SETS', 'TOKENS', 'ACTIONS' or 'ERROR'");
                         }
                         break;
                 }
@@ -117,6 +148,10 @@ namespace Proyecto_LFA
                 throw new ArgumentException("Didn't find ACTIONS");
             if (errors.Count < 1)
                 throw new ArgumentException("Didn't find ERROR");
+            if (found_set && sets.Count < 1)
+                throw new ArgumentException("Expected at least one SET");
+            if (!found_reserved)
+                throw new ArgumentException("Didn't find RESERVADAS in ACTIONS");
 
             return (sets, tokens, actions, errors);
         }

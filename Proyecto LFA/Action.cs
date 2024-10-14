@@ -1,18 +1,27 @@
 ﻿namespace Proyecto_LFA
 {
-    public class Action : Part
+    public class Action(string line) : Part(line)
     {
         private Dictionary<int, string> reservedWords = new();
-
-        public Action(string line) : base(line)
-        {
-            Validate(line);
-        }
+        private String name = "";
 
         public override void Validate(string line)
         {
-            // Encontrar el contenido después de "RESERVADAS()"
-            int startIndex = line.IndexOf("RESERVADAS()") + "RESERVADAS()".Length;
+            // Encontrar el contenido después de la declaración de la función
+            int startIndex = line.IndexOf("()");
+
+            if (startIndex == 0 && line[0] == '(')
+                throw new ArgumentException("Expected function identifier");
+            else if (startIndex < 0)
+                throw new ArgumentException("Expected brackets for function '()'");
+
+            for (int i = 0; i < startIndex; i++)
+            {
+                name += line[i];
+            }
+
+            startIndex += 2;
+
             string actionContent = line.Substring(startIndex).Trim();
 
             // Verificar que el contenido esté rodeado por llaves
@@ -33,9 +42,10 @@
                 // Validar el formato: número = 'IDENTIFICADOR'
                 string[] parts = trimmedLine.Split('=', 2, StringSplitOptions.TrimEntries);
                 if (parts.Length != 2 || !int.TryParse(parts[0].Trim(), out int tokenId))
-                {
                     throw new ArgumentException($"Invalid reserved word format in line: {trimmedLine}");
-                }
+                else if (parts[1][0] != '\'' || parts[1][^1] != '\'')
+                    throw new ArgumentException(
+                        $"Expected token identifier to be enclosed with apostrophe in line: {trimmedLine}");
 
                 // Eliminar los apóstrofes alrededor del identificador
                 string identifier = parts[1].Trim().Trim('\'');
@@ -45,7 +55,7 @@
 
         public override string ToString()
         {
-            string result = "RESERVADAS() {\n";
+            string result =  name + "() {\n";
             foreach (var word in reservedWords)
             {
                 result += $"    {word.Key} = '{word.Value}'\n";
