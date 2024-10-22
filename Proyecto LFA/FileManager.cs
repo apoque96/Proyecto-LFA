@@ -153,6 +153,9 @@ namespace Proyecto_LFA
             if (!found_reserved)
                 throw new ArgumentException("Didn't find RESERVADAS in ACTIONS");
 
+            //Crea la máquina de Moore
+            MooreMachine mooreMachine = new(tokens);
+            mooreMachine.displayMachine();
             return (sets, tokens, actions, errors);
         }
     }

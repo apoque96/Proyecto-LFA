@@ -2,8 +2,9 @@
 {
     public class Token(string line) : Part(line)
     {
-        private int number;
+        public int number;
         private string expression = "";
+        public Node? treeNode = null;
 
         public override void Validate(string line)
         {
@@ -93,14 +94,15 @@
 
             tokens.Push(")");
             tokens.Push(".");
-            tokens.Push("#");
+            tokens.Push("#T" + this.number);
 
             if (foundApostrophe)
             {
                 throw new ArgumentException("Expected ' on " + expression);
             }
 
-            _ = new Tree(tokens);
+            Tree tree = new(tokens);
+            this.treeNode = tree.BuildTree();
         }
 
         // Método que verifica si un carácter es un operador
