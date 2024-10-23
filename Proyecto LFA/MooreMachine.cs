@@ -148,7 +148,7 @@ namespace Proyecto_LFA
                 {
                     foreach(int firstC2 in root.Right.Firsts)
                     {
-                        Follows[lastC1-1].Add(firstC2-1);
+                        Follows[lastC1-1].Add(firstC2);
                     }
                 }
             }
@@ -159,7 +159,7 @@ namespace Proyecto_LFA
                 {
                     foreach (int firstC1 in root.Left.Firsts)
                     {
-                        Follows[lastC1].Add(firstC1);
+                        Follows[lastC1-1].Add(firstC1);
                     }
                 }
             }
