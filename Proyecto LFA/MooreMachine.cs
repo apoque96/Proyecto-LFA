@@ -9,7 +9,9 @@ namespace Proyecto_LFA
     public class MooreMachine
     {
         private Node? root {get; set;}
+        private List<HashSet<int>> Follows {get; set;} = new List<HashSet<int>>();
         private static int count = 1;
+        private static int leafCount = 0;
 
         public MooreMachine(List<Token> tokens) {
             buildMachine(tokens);
@@ -30,8 +32,21 @@ namespace Proyecto_LFA
                     Right = right,
                 };
             }
+            //Node concat = new Node(".")
+            //{
+            //    Left = intersection,
+            //    Right = new Node("#")
+            //};
+            //root = concat;
             root = intersection;
             determineFirstAndLast(root);
+            determineFollows();
+
+            Console.WriteLine("Símbolo\tFollow");
+            for(int i = 0; i < Follows.Count; i++)
+            {
+                Console.WriteLine(i + 1 + "\t" + string.Join(",", Follows[i]));
+            }
         }
 
         private void determineFirstAndLast(Node? root)
@@ -49,6 +64,7 @@ namespace Proyecto_LFA
                 root.Firsts.Add(count);
                 root.Lasts.Add(count++);
                 root.nullable = false;
+                leafCount++;
                 return;
             }
 
@@ -100,6 +116,52 @@ namespace Proyecto_LFA
                 root.Lasts = root.Left.Lasts;
                 root.nullable = true;
                 return;
+            }
+        }
+
+        private void determineFollows()
+        {
+            for (int i = 0; i < leafCount; i++)
+            {
+                Follows.Add([]);
+            }
+
+            helper(root);
+        }
+
+        //determineFollows helper function
+        private void helper(Node? root)
+        {
+            if (root == null)
+                return;
+            if (root.Left == null && root.Right == null)
+                return;
+
+            // Recorre el subárbol izquierdo
+            helper(root.Left);
+            // Recorre el subárbol derecho
+            helper(root.Right);
+
+            if (root.Value == "." || root.Value == "+")
+            {
+                foreach(int lastC1 in root.Left.Lasts)
+                {
+                    foreach(int firstC2 in root.Right.Firsts)
+                    {
+                        Follows[lastC1-1].Add(firstC2-1);
+                    }
+                }
+            }
+
+            if (root.Value == "*")
+            {
+                foreach (int lastC1 in root.Left.Lasts)
+                {
+                    foreach (int firstC1 in root.Left.Firsts)
+                    {
+                        Follows[lastC1].Add(firstC1);
+                    }
+                }
             }
         }
 
