@@ -1,10 +1,22 @@
 ﻿namespace Proyecto_LFA
 {
-    public class Token(string line) : Part(line)
+    public class Token : Part
     {
         public int number;
         private string expression = "";
         public Node? treeNode = null;
+
+        // Propiedad pública Value para obtener el valor de la expresión
+        public string Value
+        {
+            get { return expression; }
+        }
+
+        // Constructor de la clase
+        public Token(string line) : base(line)
+        {
+            Validate(line);
+        }
 
         public override void Validate(string line)
         {
@@ -109,13 +121,6 @@
         private bool IsOperator(char element)
         {
             return new HashSet<char> { '+', '*', '?', '|', '(', ')' }.Contains(element);
-        }
-
-        // Método que verifica si un carácter es un símbolo terminal
-        private bool IsTerminal(char element)
-        {
-            // Se consideran terminales aquellos caracteres que no son operadores ni paréntesis
-            return !IsOperator(element);
         }
 
         public override string ToString()

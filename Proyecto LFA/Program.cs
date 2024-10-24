@@ -4,7 +4,7 @@ using Action = Proyecto_LFA.Action;
 try
 {
     (List<Set> sets, List<Token> tokens, List<Action> actions, List<Error> errors)
-        = FileManager.ReadFile("../../../../Testing/GRAMATICA.txt");
+        = FileManager.ReadFile("../../../../Testing/prueba_2-1.txt");
 
     //Console.WriteLine("Sets:");
     //foreach (Set set in sets)
