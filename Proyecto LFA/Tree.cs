@@ -10,20 +10,17 @@ namespace Proyecto_LFA
     {
         private Stack<Node> S = new Stack<Node>();  // Pila de árboles
         private Stack<string> T = new Stack<string>();  // Pila de tokens
+        private Stack<string> tokens = new Stack<string>(); // Tokens iniciales
 
         public Tree(Stack<string> s)
         {
-            Stack<string> tokens = new Stack<string>();
-
             while (s.Count > 0)
             {
                 tokens.Push(s.Pop());
             }
-
-            _ = this.BuildTree(tokens);
         }
 
-        public Node BuildTree(Stack<string> tokens)
+        public Node BuildTree()
         {
             // Procesamiento de tokens (ya lo tienes)
             while (tokens.Count > 0)
