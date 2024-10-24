@@ -167,7 +167,7 @@ namespace Proyecto_LFA
             Console.WriteLine("Saved tree to Moore Machine.txt");
 
             SaveFirstAndLastToCSV("Firsts,Lasts&Follows.csv");
-            Console.WriteLine("Saved Firsts and Lasts to Firsts&Lasts.csv");
+            Console.WriteLine("Saved Firsts, Lasts & Follows to Firsts,Lasts&Follow.csv");
 
             // Collect leaves
             var leaves = CollectLeaves(root);
@@ -199,8 +199,8 @@ namespace Proyecto_LFA
             using (StreamWriter csvWriter = new StreamWriter(filePath))
             {
 
-                csvWriter.WriteLine("TABLA DE FIRSTS Y LASTS");
-                csvWriter.WriteLine("Node;Firsts;Lasts;");
+                csvWriter.WriteLine("TABLA DE FIRSTS LASTS");
+                csvWriter.WriteLine("Node;Firsts;Lasts;Nullable");
 
                 SaveNodeFirstAndLastToCSV(root, csvWriter);
 
@@ -218,7 +218,7 @@ namespace Proyecto_LFA
         {
             if (node == null) return;
 
-            csvWriter.WriteLine($"{node.Value};{string.Join(",", node.Firsts)};{string.Join(",", node.Lasts)}");
+            csvWriter.WriteLine($"{node.Value};{string.Join(",", node.Firsts)};{string.Join(",", node.Lasts)};{(node.nullable ? "N" : "")}");
 
             SaveNodeFirstAndLastToCSV(node.Left, csvWriter);
             SaveNodeFirstAndLastToCSV(node.Right, csvWriter);
