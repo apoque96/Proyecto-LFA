@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO; // For StreamWriter
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Proyecto_LFA
 {
@@ -13,26 +13,21 @@ namespace Proyecto_LFA
         private List<HashSet<int>> Follows { get; set; } = new List<HashSet<int>>();
         private static int count = 1;
         private static int leafCount = 0;
-        private List<Token> tokens;
-        private Dictionary<(int, char), int> transitionTable = new Dictionary<(int, char), int>();
-
-        private Dictionary<int, char> outputTable = new Dictionary<int, char>();
-
 
         public MooreMachine(List<Token> tokens)
         {
-            this.tokens = tokens;
             buildMachine(tokens);
         }
 
         private void buildMachine(List<Token> tokens)
         {
             Node? intersection = null;
-            // Creamos un nodo con OR "|" y se le asigna los tokens como hijo
-            // izquierdo y derecho
+            // Build the syntax tree by combining tokens with an OR ("|") operator
             for (int i = 0; i < tokens.Count; i++)
             {
                 Node? left = intersection ?? tokens[i++].treeNode;
+                if (i >= tokens.Count)
+                    break;
                 Node? right = tokens[i].treeNode;
                 intersection = new Node("|")
                 {
@@ -40,21 +35,10 @@ namespace Proyecto_LFA
                     Right = right,
                 };
             }
-            //Node concat = new Node(".")
-            //{
-            //    Left = intersection,
-            //    Right = new Node("#")
-            //};
-            //root = concat;
+
             root = intersection;
             determineFirstAndLast(root);
             determineFollows();
-
-            //Console.WriteLine("Símbolo\tFollow");
-            //for(int i = 0; i < Follows.Count; i++)
-            //{
-            //    Console.WriteLine(i + 1 + "\t" + string.Join(",", Follows[i]));
-            //}
         }
 
         private void determineFirstAndLast(Node? root)
@@ -62,9 +46,9 @@ namespace Proyecto_LFA
             if (root == null)
                 return;
 
-            // Recorre el subárbol izquierdo
+            // Traverse the left subtree
             determineFirstAndLast(root.Left);
-            // Recorre el subárbol derecho
+            // Traverse the right subtree
             determineFirstAndLast(root.Right);
 
             if (root.Left == null && root.Right == null)
@@ -131,33 +115,13 @@ namespace Proyecto_LFA
         {
             for (int i = 0; i < leafCount; i++)
             {
-                Follows.Add([]);
+                Follows.Add(new HashSet<int>());
             }
 
             helper(root);
-            FillTransitionTable();
         }
 
-        private void FillTransitionTable()
-        {
-            FillOutputTable(); // Llama a este método para llenar la tabla de salidas
-
-            foreach (var followSet in Follows.Select((follows, index) => new { follows, index }))
-            {
-                int currentState = followSet.index + 1;
-                foreach (int nextState in followSet.follows)
-                {
-                    // Asumimos que el valor del token en el nodo es el símbolo de entrada
-                    char token = GetTokenForState(currentState)?.Value[0] ?? throw new Exception("Token no encontrado.");
-
-                    // Agregamos la transición a la tabla
-                    transitionTable[(currentState, token)] = nextState;
-                }
-            }
-        }
-
-
-        //determineFollows helper function
+        // Helper function for determineFollows
         private void helper(Node? root)
         {
             if (root == null)
@@ -165,9 +129,9 @@ namespace Proyecto_LFA
             if (root.Left == null && root.Right == null)
                 return;
 
-            // Recorre el subárbol izquierdo
+            // Traverse the left subtree
             helper(root.Left);
-            // Recorre el subárbol derecho
+            // Traverse the right subtree
             helper(root.Right);
 
             if (root.Value == "." || root.Value == "+")
@@ -176,7 +140,7 @@ namespace Proyecto_LFA
                 {
                     foreach (int firstC2 in root.Right.Firsts)
                     {
-                        Follows[lastC1-1].Add(firstC2);
+                        Follows[lastC1 - 1].Add(firstC2);
                     }
                 }
             }
@@ -187,56 +151,10 @@ namespace Proyecto_LFA
                 {
                     foreach (int firstC1 in root.Left.Firsts)
                     {
-                        Follows[lastC1-1].Add(firstC1);
+                        Follows[lastC1 - 1].Add(firstC1);
                     }
                 }
             }
-        }
-
-        public int Transition(int currentState, char inputSymbol)
-        {
-            if (transitionTable.TryGetValue((currentState, inputSymbol), out int nextState))
-            {
-                return nextState;
-            }
-            else
-            {
-                throw new Exception("Transición no válida.");
-            }
-        }
-
-        public Token? GetTokenForState(int state)
-        {
-            if (state > 0 && state <= leafCount)
-            {
-                var token = tokens.FirstOrDefault(t => t.treeNode.Firsts.Contains(state));
-                if (token == null)
-                {
-                    Console.WriteLine($"Token no encontrado para el estado: {state}");
-                }
-                return token;
-            }
-            return null;
-        }
-
-
-
-        public void displayTransitionTable()
-        {
-            using (StreamWriter writer = new StreamWriter("TransitionTable.csv"))
-            {
-                writer.WriteLine("Estado Actual;Símbolo de Entrada;Estado Siguiente");
-
-                foreach (var transition in transitionTable)
-                {
-                    var currentState = transition.Key.Item1;
-                    var inputSymbol = transition.Key.Item2;
-                    var nextState = transition.Value;
-                    writer.WriteLine($"{currentState};{inputSymbol};{nextState}");
-                }
-            }
-
-            Console.WriteLine("Saved transition table to TransitionTable.csv");
         }
 
         public void displayMachine()
@@ -250,19 +168,29 @@ namespace Proyecto_LFA
 
             SaveFirstAndLastToCSV("Firsts,Lasts&Follows.csv");
             Console.WriteLine("Saved Firsts and Lasts to Firsts&Lasts.csv");
+
+            // Collect leaves
+            var leaves = CollectLeaves(root);
+
+            // Calculate transitions
+            var transitions = CalculateTransitions(Follows, root, leaves);
+
+            // Save transitions to CSV
+            SaveTransitionsToCSV(transitions, "Transitions.csv");
+            Console.WriteLine("Saved transitions to Transitions.csv");
         }
 
         private static void PrintTreeToFile(Node? node, StreamWriter writer, string indent = "", bool isRight = true)
         {
             if (node == null) return;
 
-            // Imprime el subárbol derecho
+            // Print the right subtree
             PrintTreeToFile(node.Right, writer, indent + (isRight ? "    " : "│   "), true);
 
-            // Imprime el nodo actual
+            // Print the current node
             writer.WriteLine(indent + (isRight ? "└── " : "┌── ") + string.Join(", ", node.Firsts) + "  " + node.Value + "  " + string.Join(", ", node.Lasts) + "  " + (node.nullable ? "N" : ""));
 
-            // Imprime el subárbol izquierdo
+            // Print the left subtree
             PrintTreeToFile(node.Left, writer, indent + (isRight ? "    " : "│   "), false);
         }
 
@@ -272,13 +200,13 @@ namespace Proyecto_LFA
             {
 
                 csvWriter.WriteLine("TABLA DE FIRSTS Y LASTS");
-                csvWriter.WriteLine("Node;Firsts;Lasts;Nullable");
+                csvWriter.WriteLine("Node;Firsts;Lasts;");
 
                 SaveNodeFirstAndLastToCSV(root, csvWriter);
 
                 csvWriter.WriteLine();
 
-                // Ahora escribimos la tabla de Follows
+                // Now write the Follows table
                 csvWriter.WriteLine("TABLA DE FOLLOWS");
                 csvWriter.WriteLine("Node;Follows");
 
@@ -290,7 +218,7 @@ namespace Proyecto_LFA
         {
             if (node == null) return;
 
-            csvWriter.WriteLine($"{node.Value};{string.Join(",", node.Firsts)};{string.Join(",", node.Lasts)};{(node.nullable ? "N" : " ")}");
+            csvWriter.WriteLine($"{node.Value};{string.Join(",", node.Firsts)};{string.Join(",", node.Lasts)}");
 
             SaveNodeFirstAndLastToCSV(node.Left, csvWriter);
             SaveNodeFirstAndLastToCSV(node.Right, csvWriter);
@@ -304,29 +232,150 @@ namespace Proyecto_LFA
             }
         }
 
-
-        private void FillOutputTable()
+        // New method to collect leaves
+        private Dictionary<string, HashSet<int>> CollectLeaves(Node node)
         {
-            FillOutputTableHelper(root);
+            var leaves = new Dictionary<string, HashSet<int>>();
+            CollectLeavesHelper(node, leaves);
+            return leaves;
         }
 
-        private void FillOutputTableHelper(Node? node)
+        private void CollectLeavesHelper(Node node, Dictionary<string, HashSet<int>> leaves)
         {
             if (node == null) return;
 
-            // Suponiendo que cada nodo hoja tiene un valor de salida
             if (node.Left == null && node.Right == null)
             {
-                int state = node.Firsts.First(); // Asumiendo que el primer elemento representa el estado
-                char output = node.Value[0]; // Suponiendo que el valor del nodo representa la salida
-                outputTable[state] = output;
-            }
+                // This is a leaf node
+                int position = node.Firsts.First();
+                string symbol = node.Value;
 
-            // Recorrer el subárbol izquierdo y derecho
-            FillOutputTableHelper(node.Left);
-            FillOutputTableHelper(node.Right);
+                if (!leaves.ContainsKey(symbol))
+                {
+                    leaves[symbol] = new HashSet<int>();
+                }
+                leaves[symbol].Add(position);
+            }
+            else
+            {
+                if (node.Left != null)
+                    CollectLeavesHelper(node.Left, leaves);
+                if (node.Right != null)
+                    CollectLeavesHelper(node.Right, leaves);
+            }
         }
 
+        // New method to calculate transitions
+        private Dictionary<HashSet<int>, Dictionary<string, HashSet<int>>> CalculateTransitions(List<HashSet<int>> followers, Node root, Dictionary<string, HashSet<int>> leaves)
+        {
+            var transitions = new Dictionary<HashSet<int>, Dictionary<string, HashSet<int>>>(new HashSetEqualityComparer<int>());
+            var processedStates = new List<HashSet<int>>();
+            var pendingStates = new Queue<HashSet<int>>();
+            pendingStates.Enqueue(root.Firsts);
 
+            while (pendingStates.Count > 0)
+            {
+                var currentState = pendingStates.Dequeue();
+                processedStates.Add(currentState);
+                var stateTransitions = new Dictionary<string, HashSet<int>>();
+
+                foreach (var number in currentState)
+                {
+                    // Find the symbol for this number
+                    foreach (var kvp in leaves)
+                    {
+                        string symbol = kvp.Key;
+                        var numbers = kvp.Value;
+                        if (numbers.Contains(number))
+                        {
+                            if (!stateTransitions.ContainsKey(symbol))
+                            {
+                                stateTransitions[symbol] = new HashSet<int>();
+                            }
+                            if (number - 1 < followers.Count)
+                            {
+                                stateTransitions[symbol].UnionWith(followers[number - 1]);
+                            }
+                        }
+                    }
+                }
+
+                transitions[currentState] = stateTransitions;
+
+                foreach (var nextState in stateTransitions.Values)
+                {
+                    if (!ContainsState(processedStates, nextState) && !ContainsState(pendingStates.ToList(), nextState))
+                    {
+                        pendingStates.Enqueue(nextState);
+                    }
+                }
+            }
+
+            return transitions;
+        }
+
+        private bool ContainsState(List<HashSet<int>> stateList, HashSet<int> state)
+        {
+            foreach (var s in stateList)
+            {
+                if (s.SetEquals(state))
+                    return true;
+            }
+            return false;
+        }
+
+        // New method to save transitions to CSV
+        private void SaveTransitionsToCSV(Dictionary<HashSet<int>, Dictionary<string, HashSet<int>>> transitions, string filePath)
+        {
+            using (StreamWriter csvWriter = new StreamWriter(filePath))
+            {
+                // Header row with all symbols
+                var allSymbols = transitions.Values.SelectMany(dict => dict.Keys).Distinct().ToList();
+                csvWriter.Write("ESTADOS;");
+                csvWriter.WriteLine(string.Join(";", allSymbols));
+
+                // Write transitions for each state
+                foreach (var state in transitions.Keys)
+                {
+                    // Write the current state (formatted with curly braces)
+                    csvWriter.Write($"{{{string.Join(", ", state)}}};");
+
+                    // Write the transitions for each symbol
+                    foreach (var symbol in allSymbols)
+                    {
+                        if (transitions[state].ContainsKey(symbol))
+                        {
+                            var nextState = transitions[state][symbol];
+                            csvWriter.Write($"{{{string.Join(", ", nextState)}}};");
+                        }
+                        else
+                        {
+                            csvWriter.Write(";"); // Empty transition
+                        }
+                    }
+
+                    csvWriter.WriteLine(); // End of the row
+                }
+            }
+        }
+    }
+
+    // Custom equality comparer for HashSet<int>
+    public class HashSetEqualityComparer<T> : IEqualityComparer<HashSet<T>>
+    {
+        public bool Equals(HashSet<T>? x, HashSet<T>? y)
+        {
+            if (x == null || y == null)
+                return false;
+            return x.SetEquals(y);
+        }
+
+        public int GetHashCode(HashSet<T> obj)
+        {
+            int hash = 0;
+            foreach (T t in obj)
+                hash ^= t!.GetHashCode();
+            return hash;
+        }
     }
 }
