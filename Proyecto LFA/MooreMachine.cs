@@ -42,11 +42,11 @@ namespace Proyecto_LFA
             determineFirstAndLast(root);
             determineFollows();
 
-            Console.WriteLine("Símbolo\tFollow");
-            for(int i = 0; i < Follows.Count; i++)
-            {
-                Console.WriteLine(i + 1 + "\t" + string.Join(",", Follows[i]));
-            }
+            //Console.WriteLine("Símbolo\tFollow");
+            //for(int i = 0; i < Follows.Count; i++)
+            //{
+            //    Console.WriteLine(i + 1 + "\t" + string.Join(",", Follows[i]));
+            //}
         }
 
         private void determineFirstAndLast(Node? root)
@@ -173,6 +173,9 @@ namespace Proyecto_LFA
             }
 
             Console.WriteLine("Saved tree to Moore Machine.txt");
+
+            SaveFirstAndLastToCSV("Firsts,Lasts&Follows.csv");
+            Console.WriteLine("Saved Firsts and Lasts to Firsts&Lasts.csv");
         }
 
         private static void PrintTreeToFile(Node? node, StreamWriter writer, string indent = "", bool isRight = true)
@@ -183,10 +186,50 @@ namespace Proyecto_LFA
             PrintTreeToFile(node.Right, writer, indent + (isRight ? "    " : "│   "), true);
 
             // Imprime el nodo actual
-            writer.WriteLine(indent + (isRight ? "└── " : "┌── ") + string.Join(", ", node.Firsts) + "  " + node.Value + "  " + string.Join(", ", node.Lasts) + "  " + (node.nullable ? "N": ""));
+            writer.WriteLine(indent + (isRight ? "└── " : "┌── ") + string.Join(", ", node.Firsts) + "  " + node.Value + "  " + string.Join(", ", node.Lasts) + "  " + (node.nullable ? "N" : ""));
 
             // Imprime el subárbol izquierdo
             PrintTreeToFile(node.Left, writer, indent + (isRight ? "    " : "│   "), false);
         }
+
+        private void SaveFirstAndLastToCSV(string filePath)
+        {
+            using (StreamWriter csvWriter = new StreamWriter(filePath))
+            {
+
+                csvWriter.WriteLine("TABLA DE FIRSTS Y LASTS");
+                csvWriter.WriteLine("Node;Firsts;Lasts;");
+
+                SaveNodeFirstAndLastToCSV(root, csvWriter);
+
+                csvWriter.WriteLine();
+
+                // Ahora escribimos la tabla de Follows
+                csvWriter.WriteLine("TABLA DE FOLLOWS");
+                csvWriter.WriteLine("Node;Follows");
+
+                SaveNodeFollowsToCSV(csvWriter);
+            }
+        }
+
+        private void SaveNodeFirstAndLastToCSV(Node? node, StreamWriter csvWriter)
+        {
+            if (node == null) return;
+
+            csvWriter.WriteLine($"{node.Value};{string.Join(",", node.Firsts)};{string.Join(",", node.Lasts)}");
+
+            SaveNodeFirstAndLastToCSV(node.Left, csvWriter);
+            SaveNodeFirstAndLastToCSV(node.Right, csvWriter);
+        }
+        private void SaveNodeFollowsToCSV(StreamWriter csvWriter)
+        {
+            for (int i = 0; i < Follows.Count; i++)
+            {
+                string follows = Follows[i].Count > 0 ? string.Join(",", Follows[i]) : " ";
+                csvWriter.WriteLine($"{i + 1};{follows}");
+            }
+        }
+
     }
 }
+
