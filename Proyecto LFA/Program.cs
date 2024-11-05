@@ -4,15 +4,15 @@ using Action = Proyecto_LFA.Action;
 try
 {
     (List<Set> sets, List<Token> tokens, List<Action> actions, List<Error> errors)
-        = FileManager.ReadFile("../../../../Testing/prueba_2-1.txt");
+        = FileManager.ReadFile("../../../../Testing/GRAMATICA.txt");
 
     //Console.WriteLine("Sets:");
     //foreach (Set set in sets)
     //    Console.WriteLine(set.ToString());
 
-    //Console.WriteLine("Tokens:");
-    //foreach (Token token in tokens)
-    //    Console.WriteLine(token.ToString());
+    Console.WriteLine("Tokens:");
+    foreach (Token token in tokens)
+        Console.WriteLine(token.ToString());
 
     //Console.WriteLine("Actions:");
     //foreach (Action action in actions)
