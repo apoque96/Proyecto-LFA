@@ -156,6 +156,8 @@ namespace Proyecto_LFA
             //Crea la máquina de Moore
             MooreMachine mooreMachine = new(tokens);
             mooreMachine.displayMachine();
+
+            Scanner scanner = new(mooreMachine, sets, tokens, actions, errors);
             return (sets, tokens, actions, errors);
         }
     }

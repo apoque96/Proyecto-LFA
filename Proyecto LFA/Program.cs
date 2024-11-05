@@ -10,9 +10,9 @@ try
     //foreach (Set set in sets)
     //    Console.WriteLine(set.ToString());
 
-    Console.WriteLine("Tokens:");
-    foreach (Token token in tokens)
-        Console.WriteLine(token.ToString());
+    //Console.WriteLine("Tokens:");
+    //foreach (Token token in tokens)
+    //    Console.WriteLine(token.ToString());
 
     //Console.WriteLine("Actions:");
     //foreach (Action action in actions)

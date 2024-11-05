@@ -13,6 +13,9 @@ namespace Proyecto_LFA
         private List<HashSet<int>> Follows { get; set; } = new List<HashSet<int>>();
         private static int count = 1;
         private static int leafCount = 0;
+        public Dictionary<HashSet<int>, Dictionary<string, HashSet<int>>> transitions {  get; set; }
+        public Dictionary<HashSet<int>, bool> acceptedState { get; set; }
+        public HashSet<int> initialState { get; set; }
 
         public MooreMachine(List<Token> tokens)
         {
@@ -173,7 +176,7 @@ namespace Proyecto_LFA
             var leaves = CollectLeaves(root);
 
             // Calculate transitions
-            var transitions = CalculateTransitions(Follows, root, leaves);
+            transitions = CalculateTransitions(Follows, root, leaves);
 
             // Save transitions to CSV
             SaveTransitionsToCSV(transitions, "Transitions.csv");
@@ -272,6 +275,7 @@ namespace Proyecto_LFA
             var processedStates = new List<HashSet<int>>();
             var pendingStates = new Queue<HashSet<int>>();
             pendingStates.Enqueue(root.Firsts);
+            initialState = root.Firsts;
 
             while (pendingStates.Count > 0)
             {
@@ -331,14 +335,14 @@ namespace Proyecto_LFA
             {
                 // Header row with all symbols
                 var allSymbols = transitions.Values.SelectMany(dict => dict.Keys).Distinct().ToList();
-                csvWriter.Write("ESTADOS;");
-                csvWriter.WriteLine(string.Join(";", allSymbols));
+                csvWriter.Write("ESTADOS,");
+                csvWriter.WriteLine(string.Join(",", allSymbols));
 
                 // Write transitions for each state
                 foreach (var state in transitions.Keys)
                 {
                     // Write the current state (formatted with curly braces)
-                    csvWriter.Write($"{{{string.Join(", ", state)}}};");
+                    csvWriter.Write($"{{{string.Join("; ", state)}}},");
 
                     // Write the transitions for each symbol
                     foreach (var symbol in allSymbols)
@@ -346,11 +350,11 @@ namespace Proyecto_LFA
                         if (transitions[state].ContainsKey(symbol))
                         {
                             var nextState = transitions[state][symbol];
-                            csvWriter.Write($"{{{string.Join(", ", nextState)}}};");
+                            csvWriter.Write($"{{{string.Join("; ", nextState)}}},");
                         }
                         else
                         {
-                            csvWriter.Write(";"); // Empty transition
+                            csvWriter.Write(","); // Empty transition
                         }
                     }
 
