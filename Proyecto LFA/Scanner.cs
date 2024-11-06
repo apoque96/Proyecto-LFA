@@ -35,6 +35,17 @@ namespace Proyecto_LFA
                 {
                     currentState = transitions[currentState][character];
                 }
+                else
+                {
+                    foreach (Set set in sets)
+                    {
+                        if (transitions[currentState].ContainsKey(set.name) && set.elements.Contains(c))
+                        {
+                            currentState = transitions[currentState][set.name];
+                            continue;
+                        }
+                    }
+                }
             }
 
             string s = transitions[currentState].Keys.ToList().Find(c => c.Contains("#T"));
@@ -42,6 +53,27 @@ namespace Proyecto_LFA
             try
             {
                 int tokenNumber = int.Parse(s?[2..]);
+
+                //Revisa si el token representa una action
+                List<string>? tokenActions = tokens?.Find(t => t.number == tokenNumber)?.actions;
+                Action? action = null;
+                foreach(string tokenAction in tokenActions)
+                {
+                    var temp = actions.Find(a => a.name.ToLower().Equals(tokenAction[..^2].ToLower()));
+                    if(temp != null)
+                    {
+                        action = temp;
+                        break;
+                    }
+                }
+
+                if(action != null)
+                {
+                    if (action.reservedWords.ContainsKey(str.ToLower()))
+                    {
+                        tokenNumber = action.reservedWords[str.ToLower()];
+                    }
+                }
 
                 Console.WriteLine(tokenNumber);
 

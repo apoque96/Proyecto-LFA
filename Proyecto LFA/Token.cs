@@ -5,7 +5,7 @@
         public int number;
         private string expression = "";
         public Node? treeNode = null;
-        private List<string> actions = [];
+        public List<string> actions = [];
         private List<string> sets = [];
 
         // Propiedad pública Value para obtener el valor de la expresión
@@ -142,7 +142,7 @@
 
         public override string ToString()
         {
-            return $"TOKEN {number} = {expression} {sets.Count} {actions.Count}";
+            return $"TOKEN {number} = {expression}";
         }
     }
 }
