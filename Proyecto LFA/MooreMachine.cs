@@ -13,7 +13,7 @@ namespace Proyecto_LFA
         private List<HashSet<int>> Follows { get; set; } = new List<HashSet<int>>();
         private static int count = 1;
         private static int leafCount = 0;
-        public Dictionary<HashSet<int>, Dictionary<string, HashSet<int>>> transitions {  get; set; }
+        public Dictionary<HashSet<int>, Dictionary<string, HashSet<int>>> transitions { get; set; }
         public Dictionary<HashSet<int>, bool> acceptedState { get; set; }
         public HashSet<int> initialState { get; set; }
 
@@ -334,15 +334,19 @@ namespace Proyecto_LFA
             using (StreamWriter csvWriter = new StreamWriter(filePath))
             {
                 // Header row with all symbols
-                var allSymbols = transitions.Values.SelectMany(dict => dict.Keys).Distinct().ToList();
-                csvWriter.Write("ESTADOS,");
-                csvWriter.WriteLine(string.Join(",", allSymbols));
+                var allSymbols = transitions.Values
+                    .SelectMany(dict => dict.Keys)
+                    .Distinct()
+                    .Select(symbol => symbol.Contains(";") ? $"\"{symbol.Replace(";", "semicolon")}\"" : symbol)
+                    .ToList();
+                csvWriter.Write("ESTADOS; ");
+                csvWriter.WriteLine(string.Join(";", allSymbols));
 
                 // Write transitions for each state
                 foreach (var state in transitions.Keys)
                 {
-                    // Write the current state (formatted with curly braces)
-                    csvWriter.Write($"{{{string.Join("; ", state)}}},");
+                    // Write the current state (formatted without spaces)
+                    csvWriter.Write($"{{{string.Join(";", state)}}};");
 
                     // Write the transitions for each symbol
                     foreach (var symbol in allSymbols)
@@ -350,11 +354,11 @@ namespace Proyecto_LFA
                         if (transitions[state].ContainsKey(symbol))
                         {
                             var nextState = transitions[state][symbol];
-                            csvWriter.Write($"{{{string.Join("; ", nextState)}}},");
+                            csvWriter.Write($"{{{string.Join(";", nextState)}}};");
                         }
                         else
                         {
-                            csvWriter.Write(","); // Empty transition
+                            csvWriter.Write(";"); // Empty transition
                         }
                     }
 
@@ -362,6 +366,7 @@ namespace Proyecto_LFA
                 }
             }
         }
+
     }
 
     // Custom equality comparer for HashSet<int>
