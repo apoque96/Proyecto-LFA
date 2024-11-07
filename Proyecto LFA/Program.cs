@@ -1,28 +1,60 @@
 ﻿using Proyecto_LFA;
 using Action = Proyecto_LFA.Action;
 
-try
+bool flag = true;
+
+while (flag)
 {
-    (List<Set> sets, List<Token> tokens, List<Action> actions, List<Error> errors)
-        = FileManager.ReadFile("../../../../Testing/prueba_2-1.txt");
+    try
+    {
+        Console.WriteLine("Ingrese la ruta al archivo de la grámatica(ruta relativa)");
+        string path = Console.ReadLine();
 
-    //Console.WriteLine("Sets:");
-    //foreach (Set set in sets)
-    //    Console.WriteLine(set.ToString());
+        (List<Set> sets, List<Token> tokens, List<Action> actions, List<Error> errors)
+            = FileManager.ReadFile(path);
 
-    //Console.WriteLine("Tokens:");
-    //foreach (Token token in tokens)
-    //    Console.WriteLine(token.ToString());
+        //Crea la máquina de Moore
+        MooreMachine mooreMachine = new(tokens);
+        mooreMachine.displayMachine();
 
-    //Console.WriteLine("Actions:");
-    //foreach (Action action in actions)
-    //    Console.WriteLine(action.ToString());
+        Scanner scanner = new(mooreMachine, sets, tokens, actions, errors);
 
-    //Console.WriteLine("Errors:");
-    //foreach (Error err in errors)
-    //    Console.WriteLine(err.ToString());
-}
-catch (Exception err)
-{
-    Console.WriteLine(err.Message);
+        while (true)
+        {
+            try
+            {
+                Console.WriteLine("Ingrese la linea de codigo");
+
+                string str = Console.ReadLine();
+
+                if (string.IsNullOrEmpty(str))
+                {
+                    flag = false;
+                    break;
+                }
+
+                string[] expression = str.Split(' ');
+
+                foreach (string s in expression)
+                {
+                    int result = scanner.getToken(s);
+                    if(result < 0)
+                    {
+                        Console.WriteLine(s + " = " + errors[0].num);
+                        continue;
+                    }
+
+                    Console.WriteLine(s + " = " + result);
+                }
+            }
+            catch
+            {
+                break;
+            }
+        }
+    }
+    catch (Exception err)
+    {
+        Console.WriteLine(err.Message);
+    }
 }

@@ -2,8 +2,8 @@
 {
     public class Action(string line) : Part(line)
     {
-        private Dictionary<int, string> reservedWords = new();
-        private String name = "";
+        public Dictionary<string, int> reservedWords = new();
+        public string name = "";
 
         public override void Validate(string line)
         {
@@ -49,7 +49,7 @@
 
                 // Eliminar los apóstrofes alrededor del identificador
                 string identifier = parts[1].Trim().Trim('\'');
-                reservedWords[tokenId] = identifier;
+                reservedWords[identifier.ToLower()] = tokenId;
             }
         }
 

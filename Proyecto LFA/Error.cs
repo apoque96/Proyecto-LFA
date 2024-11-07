@@ -8,7 +8,7 @@ namespace Proyecto_LFA
 {
     public class Error(string line) : Part(line)
     {
-        private int num;
+        public int num;
 
         public override void Validate(string line)
         {

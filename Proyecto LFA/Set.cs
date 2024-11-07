@@ -2,8 +2,8 @@
 {
     public class Set(string line) : Part(line)
     {
-        private string name = "";
-        private List<char> elements = [];
+        public string name { get; set; } = "";
+        public List<char> elements { get; set; } = [];
 
         public override void Validate(string line)
         {

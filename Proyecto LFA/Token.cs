@@ -1,10 +1,12 @@
 ﻿namespace Proyecto_LFA
 {
-    public class Token : Part
+    public class Token(string line) : Part(line)
     {
         public int number;
         private string expression = "";
         public Node? treeNode = null;
+        public List<string> actions = [];
+        private List<string> sets = [];
 
         // Propiedad pública Value para obtener el valor de la expresión
         public string Value
@@ -12,11 +14,6 @@
             get { return expression; }
         }
 
-        // Constructor de la clase
-        public Token(string line) : base(line)
-        {
-            Validate(line);
-        }
 
         public override void Validate(string line)
         {
@@ -41,7 +38,9 @@
             Stack<string> tokens = new Stack<string>();
             bool foundApostrophe = false;
             bool foundInsideApostrophe = false;
+            bool foundBracket = false;
             string set = "";
+            string action = "";
 
             tokens.Push("(");
 
@@ -52,6 +51,7 @@
                     if (!string.IsNullOrWhiteSpace(set))
                     {
                         tokens.Push(set);
+                        sets.Add(set);
                         set = "";
                         tokens.Push(".");
                     }
@@ -69,6 +69,23 @@
                     }
                     foundInsideApostrophe = false;
                     foundApostrophe = !foundApostrophe;
+                    continue;
+                }
+
+                if (c == '{' && !foundApostrophe)
+                {
+                    foundBracket = true;
+                    continue;
+                }
+                else if (foundBracket && !foundApostrophe)
+                {
+                    if (c == '}')
+                    {
+                        actions.Add(action);
+                        action = "";
+                        continue;
+                    }
+                    action += c;
                     continue;
                 }
 
@@ -121,6 +138,36 @@
         private bool IsOperator(char element)
         {
             return new HashSet<char> { '+', '*', '?', '|', '(', ')' }.Contains(element);
+        }
+
+        public void checkThatSetsAndActionsExists(List<Set> sets, List<Action> actions)
+        {
+
+            foreach (var TokenSet in this.sets)
+            {
+                bool setExists = false;
+                foreach(var set in sets)
+                {
+                    if (set.name.ToLower().Equals(TokenSet.ToLower()))
+                        setExists = true;
+                }
+
+                if (!setExists)
+                    throw new ArgumentException($"Didn't find set: {TokenSet}");
+            }
+
+            foreach (var TokenAction in this.actions)
+            {
+                bool actionExists = false;
+                foreach (var action in actions)
+                {
+                    if (action.name.ToLower().Equals(TokenAction[..^2].ToLower()))
+                        actionExists = true;
+                }
+
+                if (!actionExists)
+                    throw new ArgumentException($"Didn't find action: {TokenAction}");
+            }
         }
 
         public override string ToString()
