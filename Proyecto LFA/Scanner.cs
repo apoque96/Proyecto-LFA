@@ -37,14 +37,18 @@ namespace Proyecto_LFA
                 }
                 else
                 {
+                    bool movedState = false;
                     foreach (Set set in sets)
                     {
                         if (transitions[currentState].ContainsKey(set.name) && set.elements.Contains(c))
                         {
                             currentState = transitions[currentState][set.name];
-                            continue;
+                            movedState = true;
+                            break;
                         }
                     }
+                    if (!movedState)
+                        return -1;
                 }
             }
 
@@ -74,8 +78,6 @@ namespace Proyecto_LFA
                         tokenNumber = action.reservedWords[str.ToLower()];
                     }
                 }
-
-                Console.WriteLine(tokenNumber);
 
                 return tokenNumber;
             }

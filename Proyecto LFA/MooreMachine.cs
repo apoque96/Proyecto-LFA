@@ -63,7 +63,7 @@ namespace Proyecto_LFA
                 return;
             }
 
-            if (root.Value == "|" || root.Value == "?")
+            if (root.Value == "|")
             {
                 HashSet<int>? concatenatedFirsts = new HashSet<int>(root.Left.Firsts);
                 concatenatedFirsts.UnionWith(root.Right.Firsts);
@@ -78,7 +78,25 @@ namespace Proyecto_LFA
                 return;
             }
 
-            if (root.Value == "." || root.Value == "+")
+            if (root.Value == "?")
+            {
+                root.Firsts = root.Left.Firsts;
+                root.Lasts = root.Left.Lasts;
+
+                root.nullable = true;
+                return;
+            }
+
+            if (root.Value == "+")
+            {
+                root.Firsts = root.Left.Firsts;
+                root.Lasts = root.Left.Lasts;
+
+                root.nullable = false;
+                return;
+            }
+
+            if (root.Value == ".")
             {
                 if (root.Left.nullable)
                 {
@@ -137,13 +155,24 @@ namespace Proyecto_LFA
             // Traverse the right subtree
             helper(root.Right);
 
-            if (root.Value == "." || root.Value == "+")
+            if (root.Value == ".")
             {
                 foreach (int lastC1 in root.Left.Lasts)
                 {
                     foreach (int firstC2 in root.Right.Firsts)
                     {
                         Follows[lastC1 - 1].Add(firstC2);
+                    }
+                }
+            }
+
+            if (root.Value == "+")
+            {
+                foreach (int last in root.Lasts)
+                {
+                    foreach (int first in root.Firsts)
+                    {
+                        Follows[last - 1].Add(first);
                     }
                 }
             }
