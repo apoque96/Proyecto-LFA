@@ -153,6 +153,11 @@ namespace Proyecto_LFA
             if (!found_reserved)
                 throw new ArgumentException("Didn't find RESERVADAS in ACTIONS");
 
+            foreach (var token in tokens)
+            {
+                token.checkThatSetsAndActionsExists(sets, actions);
+            }
+
             return (sets, tokens, actions, errors);
         }
     }

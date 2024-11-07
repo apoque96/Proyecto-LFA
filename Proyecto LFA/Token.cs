@@ -140,6 +140,36 @@
             return new HashSet<char> { '+', '*', '?', '|', '(', ')' }.Contains(element);
         }
 
+        public void checkThatSetsAndActionsExists(List<Set> sets, List<Action> actions)
+        {
+
+            foreach (var TokenSet in this.sets)
+            {
+                bool setExists = false;
+                foreach(var set in sets)
+                {
+                    if (set.name.ToLower().Equals(TokenSet.ToLower()))
+                        setExists = true;
+                }
+
+                if (!setExists)
+                    throw new ArgumentException($"Didn't find set: {TokenSet}");
+            }
+
+            foreach (var TokenAction in this.actions)
+            {
+                bool actionExists = false;
+                foreach (var action in actions)
+                {
+                    if (action.name.ToLower().Equals(TokenAction[..^2].ToLower()))
+                        actionExists = true;
+                }
+
+                if (!actionExists)
+                    throw new ArgumentException($"Didn't find action: {TokenAction}");
+            }
+        }
+
         public override string ToString()
         {
             return $"TOKEN {number} = {expression}";
